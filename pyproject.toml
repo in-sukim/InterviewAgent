@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "interview-agent"
+version = "0.1.0"
+description = ""
+authors = ["in-sukim <rladlstn494@naver.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain = "^0.3.14"
+langchain-core = "^0.3.30"
+langchain-openai = "^0.3.0"
+langchain-community = "^0.3.14"
+langgraph = "^0.2.63"
+pdfplumber = "^0.11.5"
+pymupdf4llm = "^0.0.17"
+keyboard = "^0.13.5"
+streamlit = "^1.42.0"
+lxml = "^5.3.1"
+ipykernel = "^6.29.5"
+
+
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.1.1"
+ipykernel = "^6.29.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
