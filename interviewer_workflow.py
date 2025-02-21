@@ -5,8 +5,6 @@ from langchain_openai import ChatOpenAI
 from states import (
     GenerateInterviewerState,
     InterviewerSet,
-    Interviewer,
-    InterviewQuestionSet,
     Conversation,
     InterviewerSession,
     InterviewSession,

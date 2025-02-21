@@ -99,7 +99,7 @@ class Conversation(BaseModel):
     purpose: str = Field(description="The purpose of the question")
     answer: Optional[str] = None
     next_conversation: Optional["Conversation"] = None
-    followup_count: int = 0  # Track the number of follow-up questions
+    followup_count: int = 0  # 추가 질문 횟수
 
     def insert_after(self, new_question_text: str, new_purpose: str):
         """Insert a new question after the current one."""
@@ -136,12 +136,12 @@ class InterviewerSession(BaseModel):
     def __init__(self, **data):
         super().__init__(**data)
         if self.conversations:
-            # Initialize the linked list structure
+            # 연결 리스트 구조 초기화
             for i in range(len(self.conversations) - 1):
                 self.conversations[i].next_conversation = self.conversations[i + 1]
             self.current_conversation = self.conversations[
                 0
-            ]  # Set the first conversation as current
+            ]  # 첫 번째 대화를 현재 대화로 설정
 
     @property
     def is_completed(self) -> bool:

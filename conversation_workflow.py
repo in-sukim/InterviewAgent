@@ -13,7 +13,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, END, StateGraph
 from pydantic import Field
-import streamlit as st  # Streamlit을 import
+import streamlit as st
 
 
 class FollowupState(BaseModel):

@@ -7,7 +7,6 @@ from langchain_core.runnables import RunnableConfig
 import interviewer_workflow
 import question_workflow
 import conversation_workflow
-import pandas as pd
 
 
 def init_session_state():
@@ -28,7 +27,7 @@ def init_session_state():
         st.session_state.uploaded_files = []
 
 
-# Extract text from PDFs
+# PDF 파일 텍스트 추출
 def extract_text_from_pdfs(pdffiles):
     """PDF 파일 텍스트 추출"""
     new_files = [
@@ -74,7 +73,7 @@ def display_interviewers(interviewers, container):
     container.markdown(html_content, unsafe_allow_html=True)
 
 
-# Handle user input and update chat messages
+# 사용자 입력 처리 및 채팅 메시지 업데이트
 def handle_input():
     """사용자 입력 처리 및 채팅 메시지 업데이트"""
     if "questions" in st.session_state:
@@ -98,7 +97,7 @@ def display_questions(questions, container=None):
     if container is None:
         container = st
 
-    # Accumulate all HTML content
+    # 모든 HTML 콘텐츠 누적
     html_content = ""
     for question in questions:
         html_content += f"""
@@ -109,7 +108,7 @@ def display_questions(questions, container=None):
         </div>
         """
 
-    # Render all content at once
+    # 한 번에 모든 콘텐츠 렌더링
     container.markdown(html_content, unsafe_allow_html=True)
 
 
@@ -192,4 +191,4 @@ def display_conversation_history(session):
                 st.markdown(
                     f"**답변:** {conversation.answer if conversation.answer else '답변 없음'}"
                 )
-                st.markdown("---")  # Add a horizontal line for separation
+                st.markdown("---")  # 구분선 추가
