@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["in-sukim <rladlstn494@naver.com>"]
 readme = "README.md"
-prd = "prd.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
