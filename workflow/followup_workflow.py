@@ -1,25 +1,18 @@
-from typing import List, Dict
-from pydantic import BaseModel
+import os
+
 from states import (
     InterviewSession,
     Conversation,
     InterviewState,
     InterviewerSession,
+    FollowupState,
 )
 from prompts import followup_prompt
+
 from langchain_core.messages import SystemMessage, HumanMessage
-import os
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, END, StateGraph
-from pydantic import Field
-import streamlit as st
-
-
-class FollowupState(BaseModel):
-    NEED_FOLLOWUP: bool = Field(description="추가 질문을 생성할지 여부")
-    FOLLOWUP_QUESTION: str = Field(description="생성된 추가 질문")
-    EVALUATION: str = Field(description="답변에 대한 평가")
 
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -58,8 +51,77 @@ def init_interview_session(interviewers, questions):
     return session
 
 
-# 비동기 추가질문 판별(면접관별 대화 세션, 단일 대화(질문-답변), 사용자 답변)
-async def generate_followup_question(
+# # 비동기 추가질문 판별(면접관별 대화 세션, 단일 대화(질문-답변), 사용자 답변)
+# async def generate_followup_question(
+#     session: InterviewSession,
+#     interviewer_idx: int,
+#     question_idx: int,
+#     max_question_length: int,
+# ):
+#     interviewer = session.interviewer_sessions[interviewer_idx]
+#     conversation = interviewer.conversations[question_idx]
+
+#     if conversation.followup_count >= max_question_length:
+#         return
+
+#     response = await invoke_llm_for_followup(interviewer, conversation)
+
+#     if response.NEED_FOLLOWUP:
+#         followup_question = response.FOLLOWUP_QUESTION
+#         purpose = response.EVALUATION
+#         print(f"followup_question: \n{followup_question}")
+#         followup_conversation = Conversation(
+#             question_text=followup_question, purpose=purpose
+#         )
+#         conversation.insert_after(followup_question, purpose)
+#         interviewer.add_conversation(followup_conversation, index=question_idx + 1)
+#         conversation.followup_count += 1
+#     elif not response.NEED_FOLLOWUP:
+#         evaluation = response.EVALUATION
+#         conversation.purpose = evaluation
+
+
+# async def invoke_llm_for_followup(interviewer, conversation):
+#     structured_llm = llm.with_structured_output(FollowupState)
+#     system_prompt = followup_prompt.format(
+#         interviewer_name=interviewer.interviewer.name,
+#         position_experience=interviewer.interviewer.position_experience,
+#         question=conversation.question_text,
+#         answer=conversation.answer,
+#     )
+#     return await structured_llm.ainvoke(
+#         [
+#             SystemMessage(content=system_prompt),
+#             HumanMessage(content="답변을 분석하고 응답을 제공하세요."),
+#         ]
+#     )
+
+
+# # 비동기 함수를 처리하도록 process_answer 업데이트
+# async def process_answer(state: InterviewState) -> dict:
+#     """사용자의 답변을 처리합니다."""
+#     session = state["session"]
+#     user_input = state["user_input"]
+#     interviewer_idx = state["interviewer_idx"]
+#     question_idx = state["question_idx"]
+#     max_question_length = state["max_question_length"]
+
+#     current_session = session.interviewer_sessions[interviewer_idx]
+#     if current_session and not current_session.is_completed:
+#         conversation = current_session.conversations[question_idx]
+#         if conversation:
+#             conversation.answer = user_input
+#             await generate_followup_question(
+#                 session,
+#                 interviewer_idx,
+#                 question_idx,
+#                 max_question_length,
+#             )
+#     return {"session": session}
+
+
+# 동기 추가질문 판별(면접관별 대화 세션, 단일 대화(질문-답변), 사용자 답변)
+def generate_followup_question(
     session: InterviewSession,
     interviewer_idx: int,
     question_idx: int,
@@ -70,8 +132,9 @@ async def generate_followup_question(
 
     if conversation.followup_count >= max_question_length:
         return
-
-    response = await invoke_llm_for_followup(interviewer, conversation)
+    print("분석 시작")
+    response = invoke_llm_for_followup(interviewer, conversation)
+    print("분석 완료")
 
     if response.NEED_FOLLOWUP:
         followup_question = response.FOLLOWUP_QUESTION
@@ -83,26 +146,31 @@ async def generate_followup_question(
         conversation.insert_after(followup_question, purpose)
         interviewer.add_conversation(followup_conversation, index=question_idx + 1)
         conversation.followup_count += 1
+    elif not response.NEED_FOLLOWUP:
+        evaluation = response.EVALUATION
+        conversation.purpose = evaluation
 
 
-async def invoke_llm_for_followup(interviewer, conversation):
+def invoke_llm_for_followup(interviewer, conversation):
     structured_llm = llm.with_structured_output(FollowupState)
+    print(f"질문: {conversation.question_text}\n답변: {conversation.answer}")
     system_prompt = followup_prompt.format(
         interviewer_name=interviewer.interviewer.name,
         position_experience=interviewer.interviewer.position_experience,
         question=conversation.question_text,
         answer=conversation.answer,
     )
-    return await structured_llm.ainvoke(
+
+    return structured_llm.invoke(
         [
             SystemMessage(content=system_prompt),
-            HumanMessage(content="답변을 분석하고 응답을 제공하세요."),
+            HumanMessage(content="answer analysis and response"),
         ]
     )
 
 
 # 비동기 함수를 처리하도록 process_answer 업데이트
-async def process_answer(state: InterviewState) -> dict:
+def process_answer(state: InterviewState) -> dict:
     """사용자의 답변을 처리합니다."""
     session = state["session"]
     user_input = state["user_input"]
@@ -115,7 +183,7 @@ async def process_answer(state: InterviewState) -> dict:
         conversation = current_session.conversations[question_idx]
         if conversation:
             conversation.answer = user_input
-            await generate_followup_question(
+            generate_followup_question(
                 session,
                 interviewer_idx,
                 question_idx,

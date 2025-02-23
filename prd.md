@@ -37,7 +37,7 @@
      - 후보자 응답 캡처 및 저장.
    - **구현**:
      - `interview_workflow.py`에서 `run_interview_workflow` 함수를 통해 전체 인터뷰 세션을 관리.
-     - `conversation_workflow.py`에서 `init_interview_session` 및 `process_answer` 함수를 통해 개별 대화 관리.
+     - `followup_workflow.py`에서 `init_interview_session` 및 `process_answer` 함수를 통해 개별 대화 관리.
      - Streamlit을 사용하여 인터랙티브한 사용자 인터페이스 제공.
 
 4. **동적 추가 질문 생성**
@@ -46,7 +46,7 @@
      - AI를 사용하여 응답을 분석하고 추가 질문 필요 여부 결정.
      - 실시간으로 추가 질문 생성 및 제시.
    - **구현**:
-     - `conversation_workflow.py`에서 `generate_followup_question` 함수를 통해 추가 질문 생성.
+     - `followup_workflow.py`에서 `generate_followup_question` 함수를 통해 추가 질문 생성.
      - OpenAI의 GPT 모델을 사용하여 응답 분석 및 추가 질문 생성.
 
 ## 워크플로우
@@ -60,7 +60,7 @@
 
 3. **인터랙티브 면접 과정**:
    - 후보자에게 질문 제시.
-   - 응답 캡처 및 `conversation_workflow.py`를 사용하여 추가 질문 필요 여부 결정.
+   - 응답 캡처 및 `followup_workflow.py`를 사용하여 추가 질문 필요 여부 결정.
 
 4. **추가 질문 처리**:
    - 후보자의 응답에 기반한 추가 질문 생성.
