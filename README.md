@@ -3,20 +3,22 @@
 InterviewAgent는 면접관 페르소나를 생성하고, 면접 질문을 자동으로 생성하여 면접 과정을 지원하는 AI 기반 면접 시뮬레이션 도구입니다. 이 도구는 Streamlit을 사용하여 웹 애플리케이션 형태로 제공됩니다.
 
 ## 프로젝트 구조
- ```bash
- InterviewAgent/
+
+```bash
+InterviewAgent/
 │
-├── main.py                      # 메인 실행 파일
-├── workflow/
-│   ├── interview_workflow.py    # 인터뷰 관리
-│   ├── question_workflow.py     # 질문 생성
-│   ├── interviewer_workflow.py  # 면접관 관리
-│   └── followup_workflow.py     # 추가 질문 관리
-├── utils.py                     # 유틸리티 함수
-└── states.py                    # 상태 정의
-└── prompts.py                   # 프롬프트 정의
-└── .env                         # 환경 변수
- ```
+├── main.py                      # 앱의 시작점으로, 사용자 인터페이스를 초기화합니다.
+├── workflow/                    # 면접 관련 기능을 관리하는 모듈들이 포함되어 있습니다.
+│   ├── interview_workflow.py    # 면접의 전체 흐름을 관리합니다.
+│   ├── question_workflow.py     # 면접 질문을 생성합니다.
+│   ├── interviewer_workflow.py  # 면접관 페르소나를 생성하고 관리합니다.
+│   ├── followup_workflow.py     # 추가 질문을 생성하고 관리합니다.
+│   └── evaluate_workflow.py     # 면접 세션을 평가하고 XML 형식으로 변환합니다.
+├── utils.py                     # 공통으로 사용되는 유틸리티 함수들이 있습니다.
+├── states.py                    # 면접 진행 상태를 관리합니다.
+├── prompts.py                   # 면접 질문 및 면접관 생성에 사용되는 프롬프트를 정의합니다.
+└── .env                         # 환경 변수 파일로, API 키를 저장합니다.
+```
 ## 주요 기능
 
 - **PDF 이력서 업로드**: 사용자는 PDF 형식의 이력서를 업로드할 수 있습니다. 여러 개의 PDF 파일 업로드를 지원합니다.
@@ -53,7 +55,6 @@ InterviewAgent는 면접관 페르소나를 생성하고, 면접 질문을 자�
 
 1. **이력서 업로드**
    - 사이드바에서 PDF 형식의 이력서 파일을 업로드합니다.
-   - 여러 개의 PDF 파일을 동시에 업로드할 수 있습니다.
 
 2. **면접관 생성**
    - 채용 공고 내용을 입력합니다.
@@ -71,4 +72,4 @@ InterviewAgent는 면접관 페르소나를 생성하고, 면접 질문을 자�
 
 5. **결과 확인**
    - 면접이 종료되면 전체 대화 내용을 확인할 수 있습니다.
-   - "면접결과 평가" 버튼을 클릭하여 면접 결과를 평가할 수 있습니다.
+   - "면접결과 평가" 버튼을 클릭하여 전체 면접 결과를 평가할 수 있습니다.
