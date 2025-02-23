@@ -2,6 +2,21 @@
 
 InterviewAgent는 면접관 페르소나를 생성하고, 면접 질문을 자동으로 생성하여 면접 과정을 지원하는 AI 기반 면접 시뮬레이션 도구입니다. 이 도구는 Streamlit을 사용하여 웹 애플리케이션 형태로 제공됩니다.
 
+## 프로젝트 구조
+ ```bash
+ InterviewAgent/
+│
+├── main.py                      # 메인 실행 파일
+├── workflow/
+│   ├── interview_workflow.py    # 인터뷰 관리
+│   ├── question_workflow.py     # 질문 생성
+│   ├── interviewer_workflow.py  # 면접관 관리
+│   └── followup_workflow.py     # 추가 질문 관리
+├── utils.py                     # 유틸리티 함수
+└── states.py                    # 상태 정의
+└── prompts.py                   # 프롬프트 정의
+└── .env                         # 환경 변수
+ ```
 ## 주요 기능
 
 - **PDF 이력서 업로드**: 사용자는 PDF 형식의 이력서를 업로드할 수 있습니다. 여러 개의 PDF 파일 업로드를 지원합니다.

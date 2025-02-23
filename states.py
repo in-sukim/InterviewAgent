@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
-from enum import Enum
 from typing import List, Optional, Dict, Any
 from typing_extensions import TypedDict
+from enum import Enum
 
 
 # 면접관 정보
@@ -85,10 +85,16 @@ class GenerateQuestionsState(TypedDict):
 
 
 # 대화 상태 Enum
-class ConversationStatus(str, Enum):
+class ConversationStatus(Enum):
     WAITING = "waiting"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
+
+
+class FollowupState(BaseModel):
+    NEED_FOLLOWUP: bool = Field(description="Whether to generate a follow-up question")
+    FOLLOWUP_QUESTION: str = Field(description="Generated follow-up question")
+    EVALUATION: str = Field(description="Evaluation of the answer in markdown format")
 
 
 # 단일 대화(질문-답변) 관리

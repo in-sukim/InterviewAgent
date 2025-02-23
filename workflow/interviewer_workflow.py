@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+import streamlit as st
 
 from langchain_openai import ChatOpenAI
 from states import (
@@ -15,6 +16,7 @@ from prompts import interviewer_persona_instructions
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, END, StateGraph
+from langchain_core.runnables import RunnableConfig
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -106,3 +108,16 @@ def create_interviewer_sessions(interviewers, questions):
     return InterviewSession(
         interviewer_sessions=interviewer_sessions, status=ConversationStatus.WAITING
     )
+
+
+def handle_interviewer_creation(job_description, max_interviewer):
+    st.session_state.graph = create_graph()
+    config = RunnableConfig(
+        recursion_limit=10, configurable=st.session_state.config["configurable"]
+    )
+    inputs = {"jd": job_description, "max_interviewer": max_interviewer}
+    st.session_state.graph.invoke(inputs, config)
+    st.success("면접관 생성 완료!")
+    st.session_state.interviewers = st.session_state.graph.get_state(
+        st.session_state.config
+    ).values["interviewers"]
