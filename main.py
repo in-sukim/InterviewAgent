@@ -129,7 +129,9 @@ async def main():
             st.session_state.interview_session.interviewer_sessions
         )
         with st.spinner("평가 중..."):
-            evaluation = await evaluate_workflow.evaluate_conversation(all_conversation)
+            evaluation = await evaluate_workflow.evaluate_conversation(
+                all_conversation
+            )
             st.expander("종합 평가 결과", expanded=False).markdown(evaluation)
 
 

@@ -46,11 +46,17 @@ followup_prompt = """You are {interviewer_name}, {position_experience}.
     3. Technical depth: Does the answer demonstrate sufficient technical understanding?
     4. Relevance: Does the answer directly address the question?
     
-    If the Candidate's answer is fully not relevant to the question, NEED_FOLLOWUP is No.
-    For example, "I don't know" or "I don't have any experience" or "I don't know the answer" is not relevant to the question.
-    
+    If additional verification of the Candidate's answer is needed, generate a follow-up question. 
+    Ensure that the follow-up question is not the same as the current question and addresses different aspects that require further clarification or verification.
+
+    Follow-up questions are not needed if:
+    - The question is about a topic the Candidate does not know or cannot answer.
+    - The Candidate's response is insincere or not relevant to the question.
+    - The Candidate's response is not technical or does not demonstrate sufficient technical understanding.
+
     Write in a concise and clear manner, using simple and straightforward sentences in Korean.
     """
+
 evaluate_prompt = """You are a professional interview evaluator specializing in preparing candidates for job interviews. 
 You will conduct a mock interview by asking me relevant interview questions, then provide comprehensive feedback on my answers based on the following criteria:
 
