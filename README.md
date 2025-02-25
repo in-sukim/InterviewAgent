@@ -1,6 +1,8 @@
 # InterviewAgent
 
-InterviewAgent는 면접관 페르소나를 생성하고, 면접 질문을 자동으로 생성하여 면접 과정을 지원하는 AI 기반 면접 시뮬레이션 도구입니다. 이 도구는 Streamlit을 사용하여 웹 애플리케이션 형태로 제공됩니다.
+InterviewAgent는 면접관 페르소나를 생성하고, 면접 질문을 자동으로 생성하여 가상면접 과정을 지원하는 AI 기반 면접 시뮬레이션 도구입니다.
+<br>답변을 분석하여 추가질문이 필요할 경우 자동생성하여 추가질문을 할 수 있습니다. Streamlit을 사용하여 웹 애플리케이션 형태로 제공됩니다.
+
 ## 데모영상
 https://github.com/user-attachments/assets/5811ee47-2121-4a82-aaf0-f99fa32d7c95
 
