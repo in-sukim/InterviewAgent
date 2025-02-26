@@ -11,9 +11,8 @@ import workflow.question_workflow as question_workflow
 import workflow.followup_workflow as followup_workflow
 import workflow.interview_workflow as interview_workflow
 import workflow.evaluate_workflow as evaluate_workflow
-from langchain_core.runnables import RunnableConfig
 
-from states import ConversationStatus
+from langchain_core.runnables import RunnableConfig
 
 
 def create_runnable_config():
@@ -24,7 +23,10 @@ def create_runnable_config():
 
 
 def handle_interviewer_creation(job_description, max_interviewer):
-    """채용 공고와 최대 면접관 수에 따라 면접관 생성."""
+    """채용 공고와 최대 면접관 수에 따라 면접관 생성.
+    job_description: str
+    max_interviewer: int
+    """
     # 면접관 생성 그래프 생성
     st.session_state.graph = interviewer_workflow.create_graph()
     # 실행 설정 생성
@@ -41,7 +43,10 @@ def handle_interviewer_creation(job_description, max_interviewer):
 
 
 def handle_feedback_submission(feedback_input, container):
-    """피드백 제출 및 면접관 상태 업데이트."""
+    """피드백 제출 및 면접관 상태 업데이트.
+    feedback_input: str
+    container: 표시 컨테이너
+    """
     # 실행 설정 생성
     config = create_runnable_config()
     # 피드백 제출
@@ -122,16 +127,14 @@ async def main():
 
     # 모든 면접 질문에 답 했을 때 컨테이너 표시
     if st.session_state.conversation_history:
-        interview_workflow.display_conversation_history(
+        evaluate_workflow.display_conversation_history(
             st.session_state.interview_session
         )
         all_conversation = evaluate_workflow.convert_conversation_to_xml(
             st.session_state.interview_session.interviewer_sessions
         )
         with st.spinner("평가 중..."):
-            evaluation = await evaluate_workflow.evaluate_conversation(
-                all_conversation
-            )
+            evaluation = await evaluate_workflow.evaluate_conversation(all_conversation)
             st.expander("종합 평가 결과", expanded=False).markdown(evaluation)
 
 

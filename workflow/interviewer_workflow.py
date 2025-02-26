@@ -1,33 +1,34 @@
 import os
-from dotenv import load_dotenv
 import streamlit as st
 
-from langchain_openai import ChatOpenAI
 from states import (
     GenerateInterviewerState,
     InterviewerSet,
-    Conversation,
-    InterviewerSession,
-    InterviewSession,
-    ConversationStatus,
 )
 from prompts import interviewer_persona_instructions
 
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
+
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, END, StateGraph
 from langchain_core.runnables import RunnableConfig
 
-load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # 모델 설정
 llm = ChatOpenAI(model="gpt-4o")
 
 
-# 면접관 생성 함수
 def create_interviewer(state: GenerateInterviewerState):
-    """면접관 페르소나 생성 함수"""
+    """면접관 페르소나 생성 함수
+    state: GenerateInterviewerState
+        jd: str
+        max_interviewer: int
+        feedback: str
+        interviewers: List[Interviewer]
+        resume: str
+    """
     jd = state["jd"]
     max_interviewer = state["max_interviewer"]
     feedback = state.get("feedback", "")
@@ -49,14 +50,27 @@ def create_interviewer(state: GenerateInterviewerState):
     return {"interviewers": interviewers.interviewers}
 
 
-# 사용자 피드백 노드
 def user_feedback(state: GenerateInterviewerState):
-    """사용자 피드백 노드"""
+    """사용자 피드백 노드
+    state: GenerateInterviewerState
+        jd: str
+        max_interviewer: int
+        feedback: str
+        interviewers: List[Interviewer]
+        resume: str
+    """
     pass
 
 
 def should_continue(state: GenerateInterviewerState):
-    """워크플로우의 다음 단계를 결정하는 함수"""
+    """워크플로우의 다음 단계를 결정하는 함수
+    state: GenerateInterviewerState
+        jd: str
+        max_interviewer: int
+        feedback: str
+        interviewers: List[Interviewer]
+        resume: str
+    """
     human_interviewers_feedback = state.get("feedback", None)
     if human_interviewers_feedback:
         return "create_interviewer"
@@ -88,29 +102,12 @@ def create_graph():
     return builder.compile(interrupt_before=["user_feedback"], checkpointer=memory)
 
 
-def create_interviewer_sessions(interviewers, questions):
-    interviewer_sessions = []
-    for interviewer in interviewers:
-        interviewer_questions = [
-            q for q in questions if q.interviewer_name == interviewer.name
-        ]
-        conversations = [
-            Conversation(question_text=question.question, purpose=question.purpose)
-            for q in interviewer_questions
-            for question in q.questions
-        ]
-        session = InterviewerSession(
-            interviewer=interviewer,
-            conversations=conversations,
-            status=ConversationStatus.WAITING,
-        )
-        interviewer_sessions.append(session)
-    return InterviewSession(
-        interviewer_sessions=interviewer_sessions, status=ConversationStatus.WAITING
-    )
-
-
+# 면접관 생성 워크플로우 핸들러 함수
 def handle_interviewer_creation(job_description, max_interviewer):
+    """면접관 생성 워크플로우 핸들러 함수
+    job_description: str
+    max_interviewer: int
+    """
     st.session_state.graph = create_graph()
     config = RunnableConfig(
         recursion_limit=10, configurable=st.session_state.config["configurable"]

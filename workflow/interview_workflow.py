@@ -1,13 +1,15 @@
 import streamlit as st
-from langchain_core.runnables import RunnableConfig
-import workflow.followup_workflow as followup_workflow
-from utils import (
-    display_conversation_history,
-)
+
 from states import ConversationStatus
+from langchain_core.runnables import RunnableConfig
+
+import workflow.followup_workflow as followup_workflow
 
 
 def run_interview_workflow(container):
+    """면접 워크플로우 실행 함수
+    container: 표시 컨테이너
+    """
     # 설정 초기화
     config = RunnableConfig(
         recursion_limit=10, configurable=st.session_state.config["configurable"]
@@ -40,7 +42,7 @@ def run_interview_workflow(container):
 
     # 사용자가 제출 버튼을 클릭했는지 확인
     if analyze_button:
-        process_user_input(session, config, container)
+        process_user_input(session, config)
         update_question_index(session, current_session)
         display_current_question(current_session, current_question, container)
         st.rerun()
@@ -52,8 +54,12 @@ def run_interview_workflow(container):
         complete_session(session, container)
 
 
-# 현재 질문을 화면에 표시하는 함수
 def display_current_question(current_session, current_question, container):
+    """현재 질문을 화면에 표시하는 함수
+    current_session: 현재 세션
+    current_question: 현재 질문
+    container: 표시 컨테이너
+    """
     with container:
         with st.form(
             key=f"form_{st.session_state.current_interviewer_idx}_{st.session_state.current_question_idx}",
@@ -77,8 +83,11 @@ def display_current_question(current_session, current_question, container):
     return analyze_button
 
 
-# 사용자의 입력을 처리하는 비동기 함수
-def process_user_input(session, config, container):
+def process_user_input(session, config):
+    """사용자의 입력을 처리하는 함수
+    session: 현재 세션
+    config: 실행 설정
+    """
     inputs = {
         "session": session,
         "user_input": st.session_state["answer"],
@@ -90,8 +99,11 @@ def process_user_input(session, config, container):
         st.session_state.graph.invoke(inputs, config)
 
 
-# 질문 인덱스를 업데이트하는 함수
 def update_question_index(session, current_session):
+    """질문 인덱스를 업데이트하는 함수
+    session: 전체 세션
+    current_session: 현재 세션
+    """
     st.session_state.current_question_idx += 1
     if st.session_state.current_question_idx >= len(current_session.conversations):
         st.session_state.current_question_idx = 0
@@ -106,21 +118,28 @@ def update_question_index(session, current_session):
 
 
 def complete_session(session, container):
-    """세션을 완료 상태로 설정하고 인터뷰를 종료합니다."""
+    """세션을 완료 상태로 설정하고 인터뷰를 종료하는 함수
+    session: 전체 세션
+    container: 표시 컨테이너
+    """
     if session.status != ConversationStatus.COMPLETED:
         session.status = ConversationStatus.COMPLETED
         container.empty()  # 컨테이너 비우기
         end_interview(session)
 
 
-# 인터뷰가 완료되었을 때 호출되는 함수
 def end_interview(session):
+    """인터뷰가 완료되었을 때 호출되는 함수
+    session: 전체 세션
+    """
     if session.status == ConversationStatus.COMPLETED:
         st.session_state.conversation_history = True
 
 
 def is_valid_index(session):
-    """현재 인덱스가 유효한지 확인합니다."""
+    """현재 인덱스가 유효한지 확인합니다.
+    session: 전체 세션
+    """
     return 0 <= st.session_state.current_interviewer_idx < len(
         session.interviewer_sessions
     ) and 0 <= st.session_state.current_question_idx < len(

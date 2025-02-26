@@ -1,16 +1,12 @@
 import os
-from dotenv import load_dotenv
 import asyncio
 from typing import List, Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
-from states import InterviewQuestion, InterviewQuestionSet
+from states import InterviewQuestionSet
 from prompts import interviewer_question_message
-
-# 환경변수 로드
-load_dotenv()
 
 # OpenAI API 키 설정
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -19,10 +15,18 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 llm = ChatOpenAI(model="gpt-4o")
 
 
+# 면접관의 질문 생성 함수
 async def generate_questions_for_interviewer(
     interviewer: Dict, resume: str
 ) -> InterviewQuestionSet:
-    """Dict 타입의 면접관 정보와 이력서를 입력받아 면접관의 질문 생성"""
+    """Dict 타입의 면접관 정보와 이력서를 입력받아 면접관의 질문 생성
+    interviewer: Dict
+        name: str
+        position_experience: str
+        main_tasks: str
+        description: str
+    resume: str
+    """
     # 면접관 페르소나 생성 프롬프트 생성
     system_message = interviewer_question_message.format(
         interviewer_name=interviewer.name,
@@ -49,10 +53,18 @@ async def generate_questions_for_interviewer(
     )
 
 
+# 모든 면접관의 질문 생성 함수
 async def generate_questions_for_interviewers(
     interviewers: List[Dict], resume: str
 ) -> Dict:
-    """List[Dict] 타입의 면접관 목록과 이력서를 입력받아 모든 면접관의 질문 생성"""
+    """List[Dict] 타입의 면접관 목록과 이력서를 입력받아 모든 면접관의 질문 생성
+    interviewers: List[Dict]
+        name: str
+        position_experience: str
+        main_tasks: str
+        description: str
+    resume: str
+    """
     tasks = [
         generate_questions_for_interviewer(interviewer, resume)
         for interviewer in interviewers

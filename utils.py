@@ -108,10 +108,17 @@ def setup_sidebar():
 
 
 def display_interviewers(interviewers, container):
-    """List[Interviewer] 타입의 면접관 목록을 입력받아 HTML 형식으로 출력"""
+    """List[Interviewer] 타입의 면접관 목록을 입력받아 HTML 형식으로 출력.
+    interviewers: List[Interviewer]
+        name: str
+        affiliation: str
+        position_experience: str
+        main_tasks: str
+        description: str
+    container: 표시 컨테이너
+    """
     # 컨테이너 비우기
     container.empty()
-
     # HTML 콘텐츠 생성
     html_content = ""
     for interviewer in interviewers:
@@ -127,37 +134,3 @@ def display_interviewers(interviewers, container):
 
     # HTML 콘텐츠 렌더링
     container.markdown(html_content, unsafe_allow_html=True)
-
-
-import re
-import streamlit as st
-
-
-def preprocess_evaluation(evaluation_text):
-    """평가 텍스트에서 숫자 앞에 줄 바꿈을 추가합니다."""
-    # 정규 표현식을 사용하여 숫자 앞에 줄 바꿈 추가
-    return re.sub(r"(?<!\n)(\d+)", r"\n\1", evaluation_text)
-
-
-def display_conversation_history(session):
-    """면접이 종료된 후 대화 내용을 보기 좋게 출력합니다."""
-    with st.container(border=True):
-        st.markdown("#### 전체 대화 내용")
-
-        for interviewer_session in session.interviewer_sessions:
-            with st.expander(f"면접관: {interviewer_session.interviewer.name}"):
-                for conversation in interviewer_session.conversations:
-                    question_label = (
-                        "추가 질문" if conversation.purpose == "Follow-up" else "질문"
-                    )
-                    st.markdown(f"**{question_label}:** {conversation.question_text}")
-                    st.markdown(
-                        f"**답변:** {conversation.answer if conversation.answer else '답변 없음'}"
-                    )
-                    # 평가 텍스트 전처리
-                    evaluation_text = (
-                        conversation.purpose if conversation.purpose else "평가 없음"
-                    )
-                    processed_evaluation = preprocess_evaluation(evaluation_text)
-                    st.markdown(f"**평가:** {processed_evaluation}")
-                    st.markdown("---")  # 구분선 추가

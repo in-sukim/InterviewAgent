@@ -20,7 +20,17 @@ llm = ChatOpenAI(model="gpt-4o", temperature=0, openai_api_key=openai_api_key)
 
 
 def init_interview_session(interviewers, questions):
-    """면접관과 그들의 질문으로 면접 세션을 초기화합니다."""
+    """면접 세션을 초기화합니다.
+    interviewers: List[Interviewer]
+        name: str
+        position_experience: str
+        main_tasks: str
+        description: str
+
+    questions: List[InterviewQuestionSet]
+        interviewer_name: str
+        questions: List[InterviewQuestion]
+    """
     interviewer_sessions = []
 
     for interviewer in interviewers:
@@ -51,13 +61,22 @@ def init_interview_session(interviewers, questions):
     return session
 
 
-# 동기 추가질문 판별(면접관별 대화 세션, 단일 대화(질문-답변), 사용자 답변)
 def generate_followup_question(
     session: InterviewSession,
     interviewer_idx: int,
     question_idx: int,
     max_question_length: int,
 ):
+    """추가질문 판별 함수
+    session: InterviewSession
+        interviewer_sessions: List[InterviewerSession]
+            interviewer: Interviewer
+            conversations: List[Conversation]
+            status: ConversationStatus
+    interviewer_idx: 현재 면접관 인덱스
+    question_idx: 현재 질문 인덱스
+    max_question_length: 최대 추가 질문 수
+    """
     interviewer = session.interviewer_sessions[interviewer_idx]
     conversation = interviewer.conversations[question_idx]
 
@@ -80,6 +99,13 @@ def generate_followup_question(
 
 
 def invoke_llm_for_followup(interviewer, conversation):
+    """추가질문 판별 함수
+    interviewer: InterviewerSession
+        interviewer: Interviewer
+        conversations: List[Conversation]
+        status: ConversationStatus
+    conversation: Conversation
+    """
     structured_llm = llm.with_structured_output(FollowupState)
     system_prompt = followup_prompt.format(
         interviewer_name=interviewer.interviewer.name,
@@ -98,13 +124,19 @@ def invoke_llm_for_followup(interviewer, conversation):
 
 # 함수를 처리하도록 process_answer 업데이트
 def process_answer(state: InterviewState) -> dict:
-    """사용자의 답변을 처리합니다."""
+    """사용자의 답변을 처리합니다.
+    session: InterviewSession
+    user_input: Optional[str]
+    interviewer_idx: int
+    question_idx: int
+    max_question_length: int
+    config: Dict[str, Any]
+    """
     session = state["session"]
     user_input = state["user_input"]
     interviewer_idx = state["interviewer_idx"]
     question_idx = state["question_idx"]
     max_question_length = state["max_question_length"]
-
     current_session = session.interviewer_sessions[interviewer_idx]
     if current_session and not current_session.is_completed:
         conversation = current_session.conversations[question_idx]
@@ -120,7 +152,14 @@ def process_answer(state: InterviewState) -> dict:
 
 
 def should_continue(state: InterviewState) -> dict:
-    """워크플로우의 다음 단계를 결정합니다."""
+    """워크플로우의 다음 단계를 결정합니다.
+    session: InterviewSession
+    user_input: Optional[str]
+    interviewer_idx: int
+    question_idx: int
+    max_question_length: int
+    config: Dict[str, Any]
+    """
     session = state["session"]
     interviewer_idx = state["interviewer_idx"]
     max_question_length = state["max_question_length"]
